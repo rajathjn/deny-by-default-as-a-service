@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	cmd.Hello()
+	cmd.Server()
 }
