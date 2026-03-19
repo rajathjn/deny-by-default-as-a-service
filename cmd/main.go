@@ -1,31 +1,46 @@
 package cmd
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
-  	"net/http"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
 )
 
-func Server() {
+func Server(address string) {
 	// gin.SetMode(gin.ReleaseMode)
 	// Create a Gin router with default middleware (logger and recovery)
-	r := gin.Default()
+	router := gin.Default()
 
-	// Define a simple GET endpoint
-	r.GET(
-		"/ping", 
+	router.Use(cors.Default())
+	router.Use(ratelimiter.Ratelimiter())
+
+	// Default endpoint is for no
+	router.GET(
+		"/", 
 		func(c *gin.Context) {
-			// Return JSON response
-			c.JSON(
-				http.StatusOK, 
-				gin.H{
-					"message": "pong",
-			})
+			// Return Response
+			c.String(
+				http.StatusOK,
+				utils.Get_negative_reason(),
+			)
 	})
 
-	// Start server on port 8080 (default)
-	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
-	if err := r.Run(); err != nil {
-		log.Fatalf("failed to run server: %v", err)
+	// For yes
+	router.NoRoute(
+		func(c *gin.Context) {
+			c.String(
+				http.StatusOK,
+				utils.Get_positive_reason(),
+			)
+	})
+	
+	log.Printf("Running the server on %s\n", address)
+	// Start server on port 8080
+	if err := router.Run(address); err != nil {
+		log.Fatalf("Failed to run server on %s: %v", address, err)
 	}
 }
