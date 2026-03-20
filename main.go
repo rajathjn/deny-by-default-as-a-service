@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	address := "localhost:8080"
+	address := "0.0.0.0:8080"
 	cmd.Server(address)
 }
