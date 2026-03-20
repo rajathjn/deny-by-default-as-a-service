@@ -1,0 +1,4 @@
+# Caddyfile
+localhost {
+    reverse_proxy dbdaas:8080
+}
