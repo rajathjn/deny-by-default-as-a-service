@@ -8,6 +8,9 @@ This tiny API returns random, generic, creative, and sometimes hilarious rejecti
 
 Built for humans, excuses, and humor.
 
+# Sponsored by
+<!-- GitAds-Verify: SNX722JUXGMMA25TYAJW96CYOK5WPN12 -->
+
 ## API Usage
 
 **Base URL**
