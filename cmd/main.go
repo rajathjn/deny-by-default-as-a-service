@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/favicon"
 )
 
 func Server(address string) {
@@ -28,6 +29,25 @@ func Server(address string) {
 				utils.Get_negative_reason(),
 			)
 	})
+
+	// For favicon.ico
+	router.GET(
+		"/favicon.ico",
+		func(c *gin.Context) {
+			favicon_data, err := favicon.Get_favicon()
+			if err != nil {
+				log.Printf("Error getting favicon: %v", err)
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+			c.Data(
+				http.StatusOK,
+				"image/x-icon",
+				favicon_data,
+			)
+		},
+	)
+
 
 	// For yes
 	router.NoRoute(
