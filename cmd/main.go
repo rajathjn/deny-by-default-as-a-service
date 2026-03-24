@@ -6,13 +6,14 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/favicon"
-	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
+	ratelimiter "github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
 )
 
@@ -22,7 +23,12 @@ type jsonResponse struct {
 }
 
 func wantsJSON(c *gin.Context) bool {
-	return c.Query("format") == "json" || c.NegotiateFormat(gin.MIMEJSON, gin.MIMEPlain) == gin.MIMEJSON
+	if c.Query("format") == "json" {
+		return true
+	}
+	accept := c.GetHeader("Accept")
+	contentType := c.GetHeader("Content-Type")
+	return strings.Contains(accept, "application/json") || strings.Contains(contentType, "application/json")
 }
 
 func respondWithReason(c *gin.Context, reason, reasonType string) {
