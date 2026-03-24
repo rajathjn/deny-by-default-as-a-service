@@ -28,7 +28,7 @@ func wantsJSON(c *gin.Context) bool {
 func respondWithReason(c *gin.Context, reason, reasonType string) {
 	if wantsJSON(c) {
 		c.JSON(
-			http.StatusOK, 
+			http.StatusOK,
 			jsonResponse{
 				Reason: reason,
 				Type:   reasonType,
@@ -49,22 +49,22 @@ func Server(address string) {
 
 	// Health check endpoint
 	router.GET(
-		"/health", 
+		"/health",
 		func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
+		})
 
 	// Default endpoint is for no
 	router.GET(
-		"/", 
+		"/",
 		func(c *gin.Context) {
 			respondWithReason(c, utils.GetNegativeReason(), "no")
-	    },
+		},
 	)
 
 	// Explicit /no endpoint
 	router.GET(
-		"/no", 
+		"/no",
 		func(c *gin.Context) {
 			respondWithReason(c, utils.GetNegativeReason(), "no")
 		},
@@ -72,7 +72,7 @@ func Server(address string) {
 
 	// Explicit /yes endpoint
 	router.GET(
-		"/yes", 
+		"/yes",
 		func(c *gin.Context) {
 			respondWithReason(c, utils.GetPositiveReason(), "yes")
 		},
@@ -80,7 +80,7 @@ func Server(address string) {
 
 	// Random yes or no
 	router.GET(
-		"/random", 
+		"/random",
 		func(c *gin.Context) {
 			if rand.IntN(2) == 0 {
 				respondWithReason(c, utils.GetNegativeReason(), "no")
@@ -92,7 +92,7 @@ func Server(address string) {
 
 	// For favicon.ico
 	router.GET(
-		"/favicon.ico", 
+		"/favicon.ico",
 		func(c *gin.Context) {
 			faviconData, err := favicon.GetFavicon()
 			if err != nil {
@@ -101,8 +101,8 @@ func Server(address string) {
 				return
 			}
 			c.Data(
-				http.StatusOK, 
-				"image/x-icon", 
+				http.StatusOK,
+				"image/x-icon",
 				faviconData,
 			)
 		},
