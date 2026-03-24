@@ -1,6 +1,9 @@
 # Deny By Default as a Service
+[![Tests](https://github.com/rajathjn/deny-by-default-as-a-service/actions/workflows/tests.yml/badge.svg)](https://github.com/rajathjn/deny-by-default-as-a-service/actions/workflows/tests.yml)
 
-![Golang Gopher](assets/golang_gopher.png)
+<p align="center">
+  <img src="assets/golang_gopher.png" alt="gopher" width="400" height="400">
+</p>
 
 Ever needed a graceful way to say “no”?  
 This API returns random, generic, creative, and sometimes hilarious rejection reasons (and acceptances!); perfectly suited for any scenario: personal, professional, student life, dev life, or just because.
@@ -64,18 +67,25 @@ By default, the API responds with plain text. You can request JSON responses by 
 $> curl localhost:8080/no
 I'm busy achieving a new high score in introversion.
 ```
+<p>
+  <img src="assets/image.png" alt="plain" width="500" height="500">
+</p>
 
 **JSON via Query Parameter**
 ```bash
 $> curl "localhost:8080/yes?format=json"
 {"reason":"Sounds great, let's do it!","type":"yes"}
 ```
+<p>
+  <img src="assets/image_json.png" alt="json" width="500" height="500">
+</p>
 
 **JSON via Headers**
 ```bash
 $> curl localhost:8080/random -H "Content-Type: application/json"
 {"reason":"I am stuck in a time loop of saying no.","type":"no"}
 ```
+
 
 ### Rate Limiting
 
