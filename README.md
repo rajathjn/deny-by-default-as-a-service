@@ -91,3 +91,5 @@ This project is licensed under the MIT License.
 Do whatever, just don’t say yes when you can say no. Unless you want to 😉.
 
 See the [LICENSE](LICENSE) file for details.
+
+Made with ❤️ and Go
