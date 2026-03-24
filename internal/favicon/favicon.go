@@ -5,8 +5,8 @@ import (
 )
 
 //go:embed favicon.ico
-var favion_file embed.FS
+var faviconFile embed.FS
 
-func Get_favicon() ([]byte, error) {
-	return favion_file.ReadFile("favicon.ico")
+func GetFavicon() ([]byte, error) {
+	return faviconFile.ReadFile("favicon.ico")
 }
