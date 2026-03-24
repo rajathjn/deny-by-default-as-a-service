@@ -1,15 +1,43 @@
 package cmd
 
 import (
+	"context"
 	"log"
+	"math/rand/v2"
 	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
-	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
-	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
+	"github.com/gin-gonic/gin"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/favicon"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
 )
+
+type jsonResponse struct {
+	Reason string `json:"reason"`
+	Type   string `json:"type"`
+}
+
+func wantsJSON(c *gin.Context) bool {
+	return c.Query("format") == "json" || c.NegotiateFormat(gin.MIMEJSON, gin.MIMEPlain) == gin.MIMEJSON
+}
+
+func respondWithReason(c *gin.Context, reason, reasonType string) {
+	if wantsJSON(c) {
+		c.JSON(
+			http.StatusOK, 
+			jsonResponse{
+				Reason: reason,
+				Type:   reasonType,
+			},
+		)
+		return
+	}
+	c.String(http.StatusOK, reason)
+}
 
 func Server(address string) {
 	// gin.SetMode(gin.ReleaseMode)
@@ -17,50 +45,101 @@ func Server(address string) {
 	router := gin.Default()
 
 	router.Use(cors.Default())
-	router.Use(ratelimiter.Ratelimiter())
+	router.Use(ratelimiter.RateLimiter())
+
+	// Health check endpoint
+	router.GET(
+		"/health", 
+		func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
 
 	// Default endpoint is for no
 	router.GET(
 		"/", 
 		func(c *gin.Context) {
-			// Return Response
-			c.String(
-				http.StatusOK,
-				utils.Get_negative_reason(),
-			)
-	})
+			respondWithReason(c, utils.GetNegativeReason(), "no")
+	    },
+	)
+
+	// Explicit /no endpoint
+	router.GET(
+		"/no", 
+		func(c *gin.Context) {
+			respondWithReason(c, utils.GetNegativeReason(), "no")
+		},
+	)
+
+	// Explicit /yes endpoint
+	router.GET(
+		"/yes", 
+		func(c *gin.Context) {
+			respondWithReason(c, utils.GetPositiveReason(), "yes")
+		},
+	)
+
+	// Random yes or no
+	router.GET(
+		"/random", 
+		func(c *gin.Context) {
+			if rand.IntN(2) == 0 {
+				respondWithReason(c, utils.GetNegativeReason(), "no")
+			} else {
+				respondWithReason(c, utils.GetPositiveReason(), "yes")
+			}
+		},
+	)
 
 	// For favicon.ico
 	router.GET(
-		"/favicon.ico",
+		"/favicon.ico", 
 		func(c *gin.Context) {
-			favicon_data, err := favicon.Get_favicon()
+			faviconData, err := favicon.GetFavicon()
 			if err != nil {
 				log.Printf("Error getting favicon: %v", err)
 				c.Status(http.StatusInternalServerError)
 				return
 			}
 			c.Data(
-				http.StatusOK,
-				"image/x-icon",
-				favicon_data,
+				http.StatusOK, 
+				"image/x-icon", 
+				faviconData,
 			)
 		},
 	)
 
-
-	// For yes
+	// Catch-all returns a positive reason
 	router.NoRoute(
 		func(c *gin.Context) {
-			c.String(
-				http.StatusOK,
-				utils.Get_positive_reason(),
-			)
-	})
-	
-	log.Printf("Running the server on %s\n", address)
-	// Start server on port 8080
-	if err := router.Run(address); err != nil {
-		log.Fatalf("Failed to run server on %s: %v", address, err)
+			respondWithReason(c, utils.GetPositiveReason(), "yes")
+		},
+	)
+
+	// Graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	srv := &http.Server{
+		Addr:    address,
+		Handler: router,
 	}
+
+	go func() {
+		log.Printf("Running the server on %s\n", address)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to run server on %s: %v", address, err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("Shutting down server...")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server exited")
 }
