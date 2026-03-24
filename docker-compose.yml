@@ -1,7 +1,7 @@
 # docker-compose.yml
 services:
   caddy:
-    image: caddy:2-alpine
+    image: caddy:2.9-alpine
     restart: unless-stopped
     ports:
       - "80:80"
@@ -10,7 +10,8 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
     depends_on:
-      - dbdaas
+      dbdaas:
+        condition: service_healthy
 
   dbdaas:
     build:
