@@ -1,30 +1,48 @@
 package ratelimiter
 
 import (
-	"net/http"
-	"time"
 	"log"
+	"net/http"
+	"os"
+	"strconv"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
 )
 
-type client_limiter struct {
-	limiter 	*rate.Limiter
-	last_seen	time.Time
-}
-
-var  (
-	mutex_lock sync.Mutex
-	ratelimiter = make(map[string]*client_limiter)
+var (
+	rateLimit  float64 = 2
+	burstLimit int     = 5
 )
 
 func init() {
-	go cleanup_ratelimiters()
+	if v := os.Getenv("RATE_LIMIT"); v != "" {
+		if parsed, err := strconv.ParseFloat(v, 64); err == nil && parsed > 0 {
+			rateLimit = parsed
+		}
+	}
+	if v := os.Getenv("BURST_LIMIT"); v != "" {
+		if parsed, err := strconv.Atoi(v); err == nil && parsed > 0 {
+			burstLimit = parsed
+		}
+	}
+
+	go cleanupLimiters()
 }
 
-func cleanup_ratelimiters() {
+type clientLimiter struct {
+	limiter  *rate.Limiter
+	lastSeen time.Time
+}
+
+var (
+	mu         sync.Mutex
+	limiterMap = make(map[string]*clientLimiter)
+)
+
+func cleanupLimiters() {
 	for {
 		time.Sleep(time.Minute)
 		func() {
@@ -34,39 +52,38 @@ func cleanup_ratelimiters() {
 				}
 			}()
 
-			mutex_lock.Lock()
-			defer mutex_lock.Unlock()
+			mu.Lock()
+			defer mu.Unlock()
 
-			for ip, c := range ratelimiter {
-				if time.Since(c.last_seen) > 3*time.Minute {
-					delete(ratelimiter, ip)
+			for ip, c := range limiterMap {
+				if time.Since(c.lastSeen) > 3*time.Minute {
+					delete(limiterMap, ip)
 				}
 			}
 		}()
 	}
 }
 
-func get_limiter(ip string) *rate.Limiter {
+func getLimiter(ip string) *rate.Limiter {
+	mu.Lock()
+	defer mu.Unlock()
 
-	mutex_lock.Lock()
-	defer mutex_lock.Unlock()
-
-	c, exists := ratelimiter[ip]
+	c, exists := limiterMap[ip]
 	if !exists {
-		c = &client_limiter{
-			limiter: rate.NewLimiter(rate.Limit(2),5),
-			last_seen: time.Now(),
+		c = &clientLimiter{
+			limiter:  rate.NewLimiter(rate.Limit(rateLimit), burstLimit),
+			lastSeen: time.Now(),
 		}
-		ratelimiter[ip] = c
+		limiterMap[ip] = c
 	}
 
 	return c.limiter
 }
 
-func Ratelimiter() gin.HandlerFunc {
+func RateLimiter() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		client_ip := c.ClientIP()
-		limiter := get_limiter(client_ip)
+		clientIP := c.ClientIP()
+		limiter := getLimiter(clientIP)
 
 		if !limiter.Allow() {
 			c.String(
