@@ -129,6 +129,11 @@ func Server(address string) {
 	srv := &http.Server{
 		Addr:    address,
 		Handler: router,
+		// Below recommended timeouts help prevent Slowloris attacks and improve server resilience
+		ReadTimeout:       5 * time.Second,
+		ReadHeaderTimeout: 2 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 
 	go func() {
