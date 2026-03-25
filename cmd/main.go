@@ -46,7 +46,7 @@ func respondWithReason(c *gin.Context, reason, reasonType string) {
 }
 
 func Server(address string) {
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	// Create a Gin router with default middleware (logger and recovery)
 	router := gin.Default()
 
