@@ -15,7 +15,7 @@ import (
 
 var (
 	rateLimit  float64 = 0.5 // 1 request every 2 seconds
-	burstLimit int     = 3 // Allow short bursts of up to 3 requests
+	burstLimit int     = 3   // Allow short bursts of up to 3 requests
 )
 
 func init() {

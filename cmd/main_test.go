@@ -37,18 +37,18 @@ func setupTestRouter() *gin.Engine {
 }
 
 func TestHealthEndpoint(t *testing.T) {
-	r := setupTestRouter()
+	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/health", nil)
 	request.RemoteAddr = "10.1.0.1:1234"
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
 	}
 
 	var body map[string]string
-	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+	if err := json.Unmarshal(response.Body.Bytes(), &body); err != nil {
 		t.Fatalf("invalid JSON response: %v", err)
 	}
 	if body["status"] != "ok" {
@@ -57,63 +57,63 @@ func TestHealthEndpoint(t *testing.T) {
 }
 
 func TestRootReturnsNegativeReason(t *testing.T) {
-	r := setupTestRouter()
+	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	request.RemoteAddr = "10.1.0.2:1234"
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
 	}
-	if w.Body.Len() == 0 {
+	if response.Body.Len() == 0 {
 		t.Error("expected non-empty response body")
 	}
 }
 
 func TestNoEndpoint(t *testing.T) {
-	r := setupTestRouter()
+	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/no", nil)
 	request.RemoteAddr = "10.1.0.3:1234"
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
 	}
-	if w.Body.Len() == 0 {
+	if response.Body.Len() == 0 {
 		t.Error("expected non-empty response body")
 	}
 }
 
 func TestYesEndpoint(t *testing.T) {
-	r := setupTestRouter()
+	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/yes", nil)
 	request.RemoteAddr = "10.1.0.4:1234"
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
 	}
-	if w.Body.Len() == 0 {
+	if response.Body.Len() == 0 {
 		t.Error("expected non-empty response body")
 	}
 }
 
 func TestJSONFormatQueryParam(t *testing.T) {
-	r := setupTestRouter()
+	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/?format=json", nil)
 	request.RemoteAddr = "10.1.0.5:1234"
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
 	}
 
 	var body jsonResponse
-	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+	if err := json.Unmarshal(response.Body.Bytes(), &body); err != nil {
 		t.Fatalf("expected JSON response, got error: %v", err)
 	}
 	if body.Reason == "" {
@@ -125,19 +125,19 @@ func TestJSONFormatQueryParam(t *testing.T) {
 }
 
 func TestJSONFormatAcceptHeader(t *testing.T) {
-	r := setupTestRouter()
+	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/yes", nil)
 	request.RemoteAddr = "10.1.0.6:1234"
 	request.Header.Set("Accept", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
 	}
 
 	var body jsonResponse
-	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+	if err := json.Unmarshal(response.Body.Bytes(), &body); err != nil {
 		t.Fatalf("expected JSON response, got error: %v", err)
 	}
 	if body.Type != "yes" {
@@ -146,16 +146,16 @@ func TestJSONFormatAcceptHeader(t *testing.T) {
 }
 
 func TestNoRouteReturnsPositiveReason(t *testing.T) {
-	r := setupTestRouter()
+	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/nonexistent-path", nil)
 	request.RemoteAddr = "10.1.0.7:1234"
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
 	}
-	if w.Body.Len() == 0 {
+	if response.Body.Len() == 0 {
 		t.Error("expected non-empty response body")
 	}
 }
