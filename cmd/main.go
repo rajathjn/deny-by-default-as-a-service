@@ -50,6 +50,7 @@ func Server(address string) {
 	// Create a Gin router with default middleware (logger and recovery)
 	router := gin.Default()
 
+	router.SetTrustedProxies(nil) // Disable trusted proxies to get real client IPs
 	router.Use(cors.Default())
 	router.Use(ratelimiter.RateLimiter())
 
