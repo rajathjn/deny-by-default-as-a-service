@@ -6,7 +6,6 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -22,17 +21,8 @@ type jsonResponse struct {
 	Type   string `json:"type"`
 }
 
-func wantsJSON(c *gin.Context) bool {
-	if c.Query("format") == "json" {
-		return true
-	}
-	accept := c.GetHeader("Accept")
-	contentType := c.GetHeader("Content-Type")
-	return strings.Contains(accept, "application/json") || strings.Contains(contentType, "application/json")
-}
-
 func respondWithReason(c *gin.Context, reason, reasonType string) {
-	if wantsJSON(c) {
+	if utils.WantsJSON(c) {
 		c.JSON(
 			http.StatusOK,
 			jsonResponse{

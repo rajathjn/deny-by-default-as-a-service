@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
 	"golang.org/x/time/rate"
 )
 
@@ -86,10 +87,12 @@ func RateLimiter() gin.HandlerFunc {
 		limiter := getLimiter(clientIP)
 
 		if !limiter.Allow() {
-			c.String(
-				http.StatusTooManyRequests,
-				"Too many requests. Do you really need that many reasons!! Please slow down.",
-			)
+			msg := "Too many requests. Do you really need that many reasons!! Please slow down."
+			if utils.WantsJSON(c) {
+				c.JSON(http.StatusTooManyRequests, gin.H{"error": msg})
+			} else {
+				c.String(http.StatusTooManyRequests, msg)
+			}
 			c.Abort()
 		}
 	}

@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"math/rand/v2"
+	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Reasons struct {
@@ -44,4 +47,13 @@ func GetNegativeReason() string {
 
 func GetPositiveReason() string {
 	return reasons.Yes[rand.IntN(lenYesReasons)]
+}
+
+func WantsJSON(c *gin.Context) bool {
+	if c.Query("format") == "json" {
+		return true
+	}
+	accept := c.GetHeader("Accept")
+	contentType := c.GetHeader("Content-Type")
+	return strings.Contains(accept, "application/json") || strings.Contains(contentType, "application/json")
 }
