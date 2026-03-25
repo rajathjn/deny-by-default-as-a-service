@@ -13,7 +13,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/favicon"
-	ratelimiter "github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
 )
 
