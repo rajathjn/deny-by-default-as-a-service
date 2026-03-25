@@ -94,7 +94,12 @@ The API includes built-in rate limiting to prevent abuse. When running via Docke
 - `BURST_LIMIT` (Maximum burst size)
 
 ## Author
-Created by [Rajath](https://github.com/rajathjn).
+Created by [Rajath Jaiprakash](https://github.com/rajathjn).
+
+## Support Me
+Like what I do, Please consider supporting me.
+
+<a href="https://coindrop.to/martisjnx" target="_blank"><img src="https://coindrop.to/embed-button.png" style="border-radius: 10px;" alt="Coindrop.to me" style="height: 57px !important;width: 229px !important;" ></a>
 
 ## License
 This project is licensed under the MIT License.
