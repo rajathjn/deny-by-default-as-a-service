@@ -33,13 +33,13 @@ func getHelpResponse() HelpResponse {
 		Name:        "Deny By Default as a Service",
 		Description: "An API that returns random, generic, creative, and sometimes hilarious rejection reasons (and acceptances!).",
 		Endpoints: []Endpoint{
-			{Path: "/", Method: "GET", Description: "Returns a random \"no\" reason."},
-			{Path: "/no", Method: "GET", Description: "Returns a random \"no\" reason."},
-			{Path: "/yes", Method: "GET", Description: "Returns a random \"yes\" reason."},
-			{Path: "/random", Method: "GET", Description: "Returns a random \"yes\" or \"no\" reason."},
+			{Path: "/", Method: "GET", Description: "Returns a random `no` reason."},
+			{Path: "/no", Method: "GET", Description: "Returns a random `no` reason."},
+			{Path: "/yes", Method: "GET", Description: "Returns a random `yes` reason."},
+			{Path: "/random", Method: "GET", Description: "Returns a random `yes` or `no` reason."},
 			{Path: "/health", Method: "GET", Description: "Health check status."},
 			{Path: "/help", Method: "GET", Description: "Shows this help information."},
-			{Path: "/*", Method: "GET", Description: "Any other route returns a positive \"yes\" reason."},
+			{Path: "/*", Method: "GET", Description: "Any other route returns a positive `yes` reason."},
 		},
 		ContentNegotiation: ContentNegotiation{
 			Default: "plain text",
