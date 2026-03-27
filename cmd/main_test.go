@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/help"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
 )
@@ -21,6 +22,7 @@ func setupTestRouter() *gin.Engine {
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
+	router.GET("/help", help.Help)
 	router.GET("/", func(c *gin.Context) {
 		respondWithReason(c, utils.GetNegativeReason(), "no")
 	})
@@ -149,6 +151,21 @@ func TestNoRouteReturnsPositiveReason(t *testing.T) {
 	router := setupTestRouter()
 	request := httptest.NewRequest(http.MethodGet, "/nonexistent-path", nil)
 	request.RemoteAddr = "10.1.0.7:1234"
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", response.Code)
+	}
+	if response.Body.Len() == 0 {
+		t.Error("expected non-empty response body")
+	}
+}
+
+func TestHelpEndpoint(t *testing.T) {
+	router := setupTestRouter()
+	request := httptest.NewRequest(http.MethodGet, "/help", nil)
+	request.RemoteAddr = "10.1.0.8:1234"
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 

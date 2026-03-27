@@ -51,6 +51,7 @@ You can run this project easily using Docker Compose, or by building the Go appl
 - `/no` - Returns a random "no" reason.
 - `/yes` - Returns a random "yes" reason.
 - `/random` - Returns a random "yes" or "no" reason.
+- `/help` - Provides usage instructions and endpoint details.
 - `/health` - Health check status.
 - **Catch-All (`/*`)** - Any other route not defined above will return a positive "yes" reason.
 

@@ -12,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/favicon"
+	"github.com/rajathjn/deny-by-default-as-a-service/internal/help"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/rate_limiter"
 	"github.com/rajathjn/deny-by-default-as-a-service/internal/utils"
 )
@@ -50,6 +51,12 @@ func Server(address string) {
 		func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"status": "ok"})
 		},
+	)
+
+	// Help endpoint
+	router.GET(
+		"/help", 
+		help.Help,
 	)
 
 	// Default endpoint is for no
