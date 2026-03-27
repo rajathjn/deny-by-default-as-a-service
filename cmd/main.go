@@ -49,7 +49,8 @@ func Server(address string) {
 		"/health",
 		func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"status": "ok"})
-		})
+		},
+	)
 
 	// Default endpoint is for no
 	router.GET(
