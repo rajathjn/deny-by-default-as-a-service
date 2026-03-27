@@ -22,10 +22,10 @@ type ContentNegotiation struct {
 
 // Need this struct to ensure the JSON response has the correct format and fields
 type HelpResponse struct {
-	Name               string     			`json:"name"`
-	Description        string     			`json:"description"`
-	Endpoints          []Endpoint 			`json:"endpoints"`
-	ContentNegotiation ContentNegotiation 	`json:"content_negotiation"`
+	Name               string             `json:"name"`
+	Description        string             `json:"description"`
+	Endpoints          []Endpoint         `json:"endpoints"`
+	ContentNegotiation ContentNegotiation `json:"content_negotiation"`
 }
 
 func getHelpResponse() HelpResponse {

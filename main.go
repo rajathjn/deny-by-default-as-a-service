@@ -27,6 +27,5 @@ func main() {
 		os.Exit(0)
 	}
 
-
 	cmd.Server(address)
 }

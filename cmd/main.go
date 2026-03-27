@@ -55,7 +55,7 @@ func Server(address string) {
 
 	// Help endpoint
 	router.GET(
-		"/help", 
+		"/help",
 		help.Help,
 	)
 
